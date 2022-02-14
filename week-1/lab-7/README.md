@@ -70,7 +70,27 @@ This project contains examples of microservice tracing with zipkin implemented w
   docker run -d -p 9411:9411 openzipkin/zipkin
  ```
  
-### Inventory swagger ui
+### Eureka server :
+
+![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-1/lab-7/images/eureka.PNG)
+
+### Gateway swagger ui :
+
+![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-1/lab-7/images/gateway-swagger.PNG)
+
+### Order service swagger ui :
+
+![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-1/lab-7/images/order-swagger.PNG)
+
+### Inventory service swagger ui :
+
+![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-1/lab-7/images/inventory-swagger.PNG)
+
+### Zipkin Tracing dashboard ui :
+
+![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-1/lab-7/images/zipkin-tracing.PNG)
+
+![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-1/lab-7/images/ziplin-graph.PNG)
 
  
  
