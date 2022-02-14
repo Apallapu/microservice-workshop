@@ -90,6 +90,8 @@ This project contains examples of microservice tracing with zipkin implemented w
 
 ![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-1/lab-7/images/zipkin-tracing.PNG)
 
+### Zipkin Tracing Graph ui :
+
 ![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-1/lab-7/images/ziplin-graph.PNG)
 
  
