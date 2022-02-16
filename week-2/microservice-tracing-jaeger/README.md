@@ -1,4 +1,4 @@
-# microservice with with Jaeger tracing
+# Microservice with Jaeger tracing
 
 Examples of microservice tracing 
 
