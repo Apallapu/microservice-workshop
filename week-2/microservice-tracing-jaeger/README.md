@@ -1,8 +1,8 @@
-# Spring Cloud Zipkin Tracing
+# microservice with with Jaeger tracing
 
 Examples of microservice tracing 
 
-This project contains examples of microservice tracing with zipkin implemented with Spring Boot and Spring Cloud projects. 
+This project contains examples of microservice tracing with Jaeger implemented with Spring Boot and Spring Cloud projects. 
 
 # softwares
    1. java 8
@@ -16,7 +16,7 @@ This project contains examples of microservice tracing with zipkin implemented w
  - Integrate with Gateway Service
  - Order service
  - Inventory service
- - Integrate Zipkin
+ - Integrate Jaeger
  ```
 
 ### Overview
@@ -28,7 +28,7 @@ This project contains examples of microservice tracing with zipkin implemented w
 
 - inventory-service: Run service via port 7171
 
-- zipkin-server: Run service via port 9411
+- Jaeger: Run service via port 16686
 - gateway-service Run service via port 7575
 
  # - build the projects
@@ -64,11 +64,29 @@ This project contains examples of microservice tracing with zipkin implemented w
    mvn spring-boot:run
  ```
  
-  - zipkin Service: 
+  - docker commands: 
  ```
-  For zipkin we need to run the below docker command.
-  docker run -d -p 9411:9411 openzipkin/zipkin
+   cd configserver
+  mvn clean install -DskipTests
+  docker build . -t ankammapallapu/configserver
+  cd eurekaserver
+  mvn clean install -DskipTests
+  docker build . -t ankammapallapu/eurekaserver
+  cd order-service
+  mvn clean install -DskipTests
+  docker build . -t ankammapallapu/order
+  cd invenotry-service
+  mvn clean install -DskipTests
+  docker build . -t ankammapallapu/inventory
+  cd gatewayserver
+  mvn clean install -DskipTests
+  docker build . -t ankammapallapu/gatewayserver
+  
+  docker-compose up
+  docker ps -a
+  docker-compose down
  ```
+ 
  
 ### Eureka server :
 
@@ -86,13 +104,16 @@ This project contains examples of microservice tracing with zipkin implemented w
 
 ![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-1/lab-7/images/inventory-swagger.PNG)
 
-### Zipkin Tracing dashboard ui :
+### Jaeger tracing ui with Order service :
 
-![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-1/lab-7/images/zipkin-tracing.PNG)
+![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-2/microservice-tracing-jaeger/images/jaeger-1.PNG)
+![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-2/microservice-tracing-jaeger/images/jaeger-2.PNG)
 
-### Zipkin Tracing Graph ui :
+### Jaeger tracing ui with Inventory service :
 
-![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-1/lab-7/images/ziplin-graph.PNG)
+![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-2/microservice-tracing-jaeger/images/jaeger-3.PNG)
+
+![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-2/microservice-tracing-jaeger/images/jaeger-4.PNG)
 
  
  
