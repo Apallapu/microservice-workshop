@@ -1,13 +1,14 @@
-# Spring Cloud Zipkin Tracing
+# Microservices with docker 
 
-Examples of microservice tracing 
+Examples of microservice deployment with docker 
 
-This project contains examples of microservice tracing with zipkin implemented with Spring Boot and Spring Cloud projects. 
+This project contains examples of microservice with docker tracing with zipkin implemented with Spring Boot and Spring Cloud projects. 
 
 # softwares
    1. java 8
    2. maven
    3. intellij idea
+   4. dockerdesktop
    
   # - History
  ```
@@ -44,6 +45,7 @@ This project contains examples of microservice tracing with zipkin implemented w
    cd eurekaserver
    mvn clean install -DskipTests
    mvn spring-boot:run
+  
  ```
  - order Service: 
  ```
@@ -69,6 +71,32 @@ This project contains examples of microservice tracing with zipkin implemented w
   For zipkin we need to run the below docker command.
   docker run -d -p 9411:9411 openzipkin/zipkin
  ```
+ 
+ - docker command
+ ```
+   cd configserver
+   mvn clean install -DskipTests
+   docker build . -t ankammapallapu/configserver
+   cd eurekaserver
+   mvn clean install -DskipTests
+   docker build . -t ankammapallapu/eurekaserver
+   cd order-service
+   mvn clean install -DskipTests
+   docker build . -t ankammapallapu/order
+   cd invenotry-service
+   mvn clean install -DskipTests
+   docker build . -t ankammapallapu/inventory
+   cd gatewayserver
+   mvn clean install -DskipTests
+   docker build . -t ankammapallapu/gatewayserver
+   
+   docker-compose up
+   docker-compose down
+ 
+ ```
+ ### docker images/container status :
+ ![This is an image](https://github.com/Apallapu/microservice-workshop/blob/master/week-2/microservice-docker/images/docker-img.PNG)
+
  
 ### Eureka server :
 
