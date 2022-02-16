@@ -1,0 +1,115 @@
+version: "3.8"
+
+services:
+
+  zipkin:
+    image: openzipkin/zipkin
+    mem_limit: 700m
+    ports:
+      - "9411:9411"
+    networks:
+      - ordernetwork
+
+  configserver:
+    image: ankammapallapu/configserver:latest
+    mem_limit: 700m
+    ports:
+      - "8888:8888"
+    networks:
+      - ordernetwork
+    depends_on:
+      - zipkin
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
+
+  eurekaserver:
+    image: ankammapallapu/eurekaserver:latest
+    mem_limit: 700m
+    ports:
+      - "8761:8761"
+    networks:
+      - ordernetwork
+    depends_on:
+      - configserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 15s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8888/
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
+
+  order:
+    image: ankammapallapu/order:latest
+    mem_limit: 700m
+    ports:
+      - "7172:7172"
+    networks:
+      - ordernetwork
+    depends_on:
+      - configserver
+      - eurekaserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8888/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
+
+  inventory:
+    image: ankammapallapu/inventory:latest
+    mem_limit: 700m
+    ports:
+      - "7171:7171"
+    networks:
+      - ordernetwork
+    depends_on:
+      - configserver
+      - eurekaserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8888/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
+
+  gatewayserver:
+    image: ankammapallapu/gatewayserver:latest
+    mem_limit: 700m
+    ports:
+      - "7575:7575"
+    networks:
+      - ordernetwork
+    depends_on:
+      - configserver
+      - eurekaserver
+      - inventory
+      - order
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 45s
+        max_attempts: 3
+        window: 180s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8888/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
+
+networks:
+  ordernetwork:
