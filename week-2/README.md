@@ -89,6 +89,9 @@ This project contains examples of microservice with docker tracing with zipkin i
    cd gatewayserver
    mvn clean install -DskipTests
    docker build . -t ankammapallapu/gatewayserver
+   
+   docker-compose up
+   docker-compose down
  
  ```
  ### docker images/container status :
