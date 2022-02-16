@@ -1,0 +1,152 @@
+version: "3.8"
+
+services:
+
+  grafana:
+    image: "grafana/grafana:latest"
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=password
+    networks:
+      - ordernetwork
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - ordernetwork
+
+  zipkin:
+    image: openzipkin/zipkin
+    mem_limit: 700m
+    ports:
+      - "9411:9411"
+    networks:
+      - ordernetwork
+
+  configserver:
+    image: ankammapallapu/configserver:latest
+    mem_limit: 700m
+    ports:
+      - "8888:8888"
+    networks:
+      - ordernetwork
+    depends_on:
+      - zipkin
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
+
+  eurekaserver:
+    image: ankammapallapu/eurekaserver:latest
+    mem_limit: 700m
+    ports:
+      - "8761:8761"
+    networks:
+      - ordernetwork
+    depends_on:
+      - configserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 15s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8888/
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
+
+  order:
+    image: ankammapallapu/order:latest
+    mem_limit: 700m
+    ports:
+      - "7172:7172"
+    networks:
+      - ordernetwork
+    depends_on:
+      - configserver
+      - eurekaserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8888/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
+      JAEGER_HOST: jaeger
+
+  inventory:
+    image: ankammapallapu/inventory:latest
+    mem_limit: 700m
+    ports:
+      - "7171:7171"
+    networks:
+      - ordernetwork
+    depends_on:
+      - configserver
+      - eurekaserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 120s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8888/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
+      JAEGER_HOST: jaeger
+
+  gatewayserver:
+    image: ankammapallapu/gatewayserver:latest
+    mem_limit: 700m
+    ports:
+      - "7575:7575"
+    networks:
+      - ordernetwork
+    depends_on:
+      - configserver
+      - eurekaserver
+      - inventory
+      - order
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 45s
+        max_attempts: 3
+        window: 180s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8888/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8761/eureka/
+      SPRING_ZIPKIN_BASEURL: http://zipkin:9411/
+      JAEGER_HOST: jaeger
+
+  jaeger:
+    image: "jaegertracing/all-in-one:latest"
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "9412:9412"
+    networks:
+      - ordernetwork
+
+networks:
+  ordernetwork:
